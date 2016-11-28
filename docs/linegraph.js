@@ -2,14 +2,14 @@
 
 /* THIS SECTION PARSES DATA INTO THE RIGHT FORMAT FOR THE LINE GRAPH */
 
-var monthlyFiles = ["MonthlyTweets2/2015-08-01-tweets.csv", "MonthlyTweets2/2015-09-01-tweets.csv",
-                    "MonthlyTweets2/2015-10-01-tweets.csv", "MonthlyTweets2/2015-11-01-tweets.csv",
-                    "MonthlyTweets2/2015-12-01-tweets.csv", "MonthlyTweets2/2016-01-01-tweets.csv",
-                    "MonthlyTweets2/2016-02-01-tweets.csv", "MonthlyTweets2/2016-03-01-tweets.csv",
-                    "MonthlyTweets2/2016-04-01-tweets.csv", "MonthlyTweets2/2016-05-01-tweets.csv",
-                    "MonthlyTweets2/2016-06-01-tweets.csv", "MonthlyTweets2/2016-07-01-tweets.csv",
-                    "MonthlyTweets2/2016-08-01-tweets.csv", "MonthlyTweets2/2016-09-01-tweets.csv",
-                    "MonthlyTweets2/2016-10-01-tweets.csv"];
+var monthlyFiles = ["2015-08-01-tweets.csv", "2015-09-01-tweets.csv",
+                    "2015-10-01-tweets.csv", "2015-11-01-tweets.csv",
+                    "2015-12-01-tweets.csv", "2016-01-01-tweets.csv",
+                    "2016-02-01-tweets.csv", "2016-03-01-tweets.csv",
+                    "2016-04-01-tweets.csv", "2016-05-01-tweets.csv",
+                    "2016-06-01-tweets.csv", "2016-07-01-tweets.csv",
+                    "2016-08-01-tweets.csv", "2016-09-01-tweets.csv",
+                    "2016-10-01-tweets.csv"];
 var numFiles = monthlyFiles.length;
 var dataset = [];
 var wordFile = "words.csv";
