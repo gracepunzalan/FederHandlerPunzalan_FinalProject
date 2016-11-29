@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- Referance from: https://code.tutsplus.com/tutorials/building-a-multi-line-chart-using-d3js--cms-22935
+and https://code.tutsplus.com/tutorials/building-a-multi-line-chart-using-d3js-part-2--cms-22973
+and http://bl.ocks.org/d3noob/d8be922a10cb0b148cd5 -->
+<head>
+</head>
+<body>
+
+  <div class="container">
+
+      <div class="jumbotron">
+
+  <svg id="visualisation" width="1000" height="500"></svg>
+
+  <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+
+  <script >
+    console.log("HI there!");
+    var vis = d3.select("#visualisation"),
+       WIDTH = 1000,
+      HEIGHT = 500,
+      MARGINS = {
+        top: 20,
+        right: 20,
+        bottom: 20,
+        left: 50,
+      },
+      // NEED TO INCLUDE THE ARRAYS FROM THE DATA PARSING TO USE THIS!
+      // For the y-scale, max # of words any line will reach cannot be more than all moral W or all general W.
+    //   maxWordCount = fuction(){ if (generalWords.length >moralWords.length) {
+    //     return generalWords.length;
+    //   }
+    //   else {
+    //     return moralWords.length;
+    //   }
+    // }
+      xScale = d3.time.scale().range([MARGINS.left, WIDTH - MARGINS.right]), //Left the domain unset b/c its fn of time
+      yScale = d3.scale.linear().range([HEIGHT- MARGINS.bottom, MARGINS.top]).domain([0, 124]), //Not Dynamic :: NOt good
+
+      xAxis = d3.svg.axis()
+        .scale(xScale)
+        .orient("bottom")
+        .ticks(4), //Plan to have a tick for each month (tick centered on Hover-Bar)
+      yAxis = d3.svg.axis()
+        .scale(yScale)
+        .orient("left")
+        .ticks(5);
+
+      // Append the X and Y axes to the svg
+      vis.append("svg:g")
+        .attr("transform", "translate(0," + (HEIGHT - MARGINS.bottom) + ")")
+        .call(xAxis);
+
+      vis.append("svg:g")
+        .attr("transform", "translate(" + (MARGINS.left) + ",0)")
+        .call(yAxis);
+
+  </script>
+
+</div>
+</div>
+
+</body>
+</html>
