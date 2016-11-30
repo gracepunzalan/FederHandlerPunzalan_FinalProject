@@ -1,22 +1,128 @@
 <!DOCTYPE html>
+<!--TO DO:
+  - y-values for each point in path:
+      - find out what "d" attribute is in the path method b/c my points don't have some of the vals-->
 <html lang="en">
 <!-- Referance from: https://code.tutsplus.com/tutorials/building-a-multi-line-chart-using-d3js--cms-22935
 and https://code.tutsplus.com/tutorials/building-a-multi-line-chart-using-d3js-part-2--cms-22973
 and http://bl.ocks.org/d3noob/d8be922a10cb0b148cd5 -->
 <head>
 </head>
+<link rel="stylesheet" type="text/css" href="murray.axes.css">
 <body>
 
   <div class="container">
 
       <div class="jumbotron">
 
+<!-- Create the SVG element-->
   <svg id="visualisation" width="1000" height="500"></svg>
 
   <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
 
   <script >
     console.log("HI there!");
+
+    // DUMMY DATA:
+    var data = [
+{
+"class": "1",
+"values": [{
+    "month": "08",
+    "year" : "2016",
+    "totM": "02",
+    "totG": "03"
+  }, {
+    "month": "02",
+    "year" : "2016",
+    "totM": "5",
+    "totG": "2"
+  }, {
+    "month": "03",
+    "year" : "2016",
+    "totM": "10",
+    "totG": "4"
+  }]
+},
+{
+"class": "03",
+"values": [{
+    "month": "01",
+    "year" : "2016",
+    "totM": "12",
+    "totG": "18"
+  }, {
+    "month": "02",
+    "year" : "2016",
+    "totM": "6",
+    "totG": "11"
+  }, {
+    "month": "03",
+    "year" : "2016",
+    "totM": "20",
+    "totG": "22"
+  }]
+},
+{
+"class": "3",
+"values": [{
+    "month": "01",
+    "year" : "2016",
+    "totM": "27",
+    "totG": "22"
+  }, {
+    "month": "02",
+    "year" : "2016",
+    "totM": "30",
+    "totG": "33"
+  }, {
+    "month": "03",
+    "year" : "2016",
+    "totM": "26",
+    "totG": "25"
+  }]
+},
+{
+"class": "4",
+"values": [{
+    "month": "01",
+    "year" : "2016",
+    "totM": "11",
+    "totG": "15"
+  }, {
+    "month": "02",
+    "year" : "2016",
+    "totM": "17",
+    "totG": "19"
+  }, {
+    "month": "03",
+    "year" : "2016",
+    "totM": "21",
+    "totG": "24"
+  }]
+},
+{
+"class": "5",
+"values": [{
+  "month": "01",
+  "year" : "2016",
+  "totM": "23",
+  "totG": "10"
+}, {
+  "month": "02",
+  "year" : "2016",
+  "totM": "30",
+  "totG": "12"
+}, {
+  "month": "03",
+  "year" : "2016",
+  "totM": "31",
+  "totG": "13"
+}]
+}];
+
+console.log(data);
+
     var vis = d3.select("#visualisation"),
        WIDTH = 1000,
       HEIGHT = 500,
@@ -35,13 +141,15 @@ and http://bl.ocks.org/d3noob/d8be922a10cb0b148cd5 -->
     //     return moralWords.length;
     //   }
     // }
-      xScale = d3.time.scale().range([MARGINS.left, WIDTH - MARGINS.right]), //Left the domain unset b/c its fn of time
-      yScale = d3.scale.linear().range([HEIGHT- MARGINS.bottom, MARGINS.top]).domain([0, 124]), //Not Dynamic :: NOt good
+      minDate = new Date(2015, 08-1), // new Date function counts Jan as 01 and Dec as 11
+      maxDate = new Date(2016, 10-1),
+      xScale = d3.time.scale().range([MARGINS.left, WIDTH - MARGINS.right]).domain([minDate, maxDate]), //Left the domain unset b/c its fn of time
+      yScale = d3.scale.linear().range([HEIGHT- 4*MARGINS.bottom, MARGINS.top]).domain([0, 124]), //Not Dynamic :: use maxWordCount instead
 
       xAxis = d3.svg.axis()
         .scale(xScale)
-        .orient("bottom")
-        .ticks(4), //Plan to have a tick for each month (tick centered on Hover-Bar)
+        .orient("bottom")//Plan to have a tick for each month (tick centered on Hover-Bar)
+        .tickFormat(d3.time.format("%Y-%B")),  // tickFormat
       yAxis = d3.svg.axis()
         .scale(yScale)
         .orient("left")
@@ -49,13 +157,67 @@ and http://bl.ocks.org/d3noob/d8be922a10cb0b148cd5 -->
 
       // Append the X and Y axes to the svg
       vis.append("svg:g")
-        .attr("transform", "translate(0," + (HEIGHT - MARGINS.bottom) + ")")
-        .call(xAxis);
+        .attr("transform", "translate(0," + (HEIGHT - 4*MARGINS.bottom) + ")")
+        .call(xAxis)
+        .selectAll("text")
+          .style("text-anchor", "end")
+          .attr("dx", "-.8em")
+          .attr("dy", ".15em")
+          .attr("transform", function(d){
+            return "rotate(-65)"
+          });
 
       vis.append("svg:g")
         .attr("transform", "translate(" + (MARGINS.left) + ",0)")
         .call(yAxis);
 
+      // Creating the line
+
+      // Line Generation function
+      // takes an array of objects called values: [{"month": "01", "totM": "", "totG": ""}, {"month": "02"...}, etc.]
+      var moralLineGen = d3.svg.line() // need to change the x & y-vals for each Month
+        .x(function(d){
+          console.log(new Date(d.year, d.month-1));
+          console.log("date scaled:")
+          console.log(xScale(new Date(d.year, d.month-1)));
+          var date = new Date(d.year, d.month-1); // new Date function counts Jan as 01 and Dec as 11
+          return xScale(date);
+        })
+        .y(function(d){
+          return yScale(d.totalM);
+        })
+        .interpolate("basis");
+
+/* Just work on moral line for now
+        // takes an array of objects called values: [{"month": "01", "totM": "", "totG": ""}, {"month": "02"...}, etc.]
+        var generalLineGen = d3.svg.line() // need to change the x & y-vals for each Month
+          .x(function(d){
+            return xScale(new Date(d.year, d.month));
+          })
+          .y(function(d){
+            return yScale(d.totalG);
+          })
+          .interpolate("basis");
+*/
+
+      // If data is set up with [{"key": "class#1", "values": [{"month": "01", "totM": "", "totG": ""}, {"month": "02"...}, etc.]}, {"key": "class#2", "values": [{"month": "01", "totM": "", "totG": ""}, {"month": "02"...}, etc.]}
+      data.forEach(function(d,i){
+        vis.append('svg:path')
+          .attr('d', moralLineGen(d.values))
+          .attr('stroke', 'green')
+          .attr('stroke-width', 2)
+          .attr('fill', 'none');
+      });
+/* Just work on moral line for now
+      // If data is set up with [{"key": "class#1", "values": [{"month": "01", "totM": "", "totG": ""}, {"month": "02"...}, etc.]}, {"key": "class#2", "values": [{"month": "01", "totM": "", "totG": ""}, {"month": "02"...}, etc.]}
+      data.forEach(function(d,i){
+        vis.append('svg:path')
+          .attr('d', generalLineGen(d.values))
+          .attr('stroke', 'blue')
+          .attr('stroke-width', 2)
+          .attr('fill', 'none');
+      });
+*/
   </script>
 
 </div>
