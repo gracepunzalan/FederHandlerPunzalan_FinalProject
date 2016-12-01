@@ -1,24 +1,52 @@
 <!DOCTYPE html>
 <!--TO DO:
-  - y-values for each point in path:
-      - find out what "d" attribute is in the path method b/c my points don't have some of the vals-->
+  -legend
+  -Events: click/Hover-Bar
+  -buttons for by class or by rank
+  -->
 <html lang="en">
 <!-- Referance from: https://code.tutsplus.com/tutorials/building-a-multi-line-chart-using-d3js--cms-22935
 and https://code.tutsplus.com/tutorials/building-a-multi-line-chart-using-d3js-part-2--cms-22973
 and http://bl.ocks.org/d3noob/d8be922a10cb0b148cd5 -->
 <head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" type="text/css" href="murray.axes.css">
+  <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+  <style>
+  /*From Murray Axes Stylesheet  */
+  .axis path,
+  .axis line {
+      fill: none;
+      stroke: black;
+      shape-rendering: crispEdges;
+  }
+  .axis text {
+      font-family: sans-serif;
+      font-size: 11px;
+  }
+
+  .heading {
+      font-family: sans-serif;
+      font-size: 18px;
+  }
+
+  .label {
+      font-family: sans-serif;
+      font-size: 12px;
+  }
+
+  /* From Murray CH10/14_div_tooltip.html*/
+/*GET LINK from googledoc*/
+
+  </style>
 </head>
-<link rel="stylesheet" type="text/css" href="murray.axes.css">
 <body>
-
-  <div class="container">
-
-      <div class="jumbotron">
-
+  <!-- Creating Tooltip (NOTE: Not yet implemented!)-->
+  <div id = "tooltip" class = "hidden">
+    <p>Click to see month's word cloud</p>
+  </div>
 <!-- Create the SVG element-->
   <svg id="visualisation" width="1000" height="500"></svg>
-
-  <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
 
   <script >
     console.log("HI there!");
@@ -144,7 +172,7 @@ console.log(data);
       minDate = new Date(2015, 08-1), // new Date function counts Jan as 01 and Dec as 11
       maxDate = new Date(2016, 10-1),
       xScale = d3.time.scale().range([MARGINS.left, WIDTH - MARGINS.right]).domain([minDate, maxDate]), //Left the domain unset b/c its fn of time
-      yScale = d3.scale.linear().range([HEIGHT- 2*MARGINS.bottom, MARGINS.top]).domain([0, 124]), //Not Dynamic :: use maxWordCount instead
+      yScale = d3.scale.linear().range([HEIGHT- 2.5*MARGINS.bottom, MARGINS.top]).domain([0, 124]), //Not Dynamic :: use maxWordCount instead
 
       xAxis = d3.svg.axis()
         .scale(xScale)
@@ -157,7 +185,8 @@ console.log(data);
 
       // Append the X and Y axes to the svg
       vis.append("svg:g")
-        .attr("transform", "translate(0," + (HEIGHT - 2*MARGINS.bottom) + ")")
+        .attr("transform", "translate(0," + (HEIGHT - 2.5*MARGINS.bottom) + ")")
+        .attr('id', 'xAxis')
         .call(xAxis)
         .selectAll("text")
           .style("text-anchor", "end")
@@ -165,10 +194,23 @@ console.log(data);
           .attr("dy", ".15em")
           .attr("transform", function(d){
             return "rotate(-65)"
+          })
+          .on("mouseover", function(){
+            d3.select(this)
+              .attr("fill", "red");
+          })
+          .on("mouseout", function(){
+            d3.select(this)
+              .attr("fill", "black");
           });
+// ADD FN TO SEE MONTH'S BUBBLE CHART HERE!
+          // .on("click", function(){
+          //
+          // })
 
       vis.append("svg:g")
         .attr("transform", "translate(" + (MARGINS.left) + ",0)")
+        .attr('id', 'yAxis')
         .call(yAxis);
 
       // Creating the line
@@ -216,7 +258,7 @@ console.log(data);
           .attr('fill', 'none')
           // .attr("data-legend", function(d){
           //   return d.class;})
-            ;
+          .attr('id', 'Moral_'+d.class); // ID for future use w/ clicks
 
         // Create the legend for the moral line
 
@@ -232,7 +274,8 @@ console.log(data);
             .attr('stroke', c10(d.class))
             .style("stroke-dasharray", ("3, 3")) // from: http://www.d3noob.org/2013/01/making-dashed-line-in-d3js.html
             .attr('stroke-width', 2)
-            .attr('fill', 'none');
+            .attr('fill', 'none')
+            .attr('id', 'General_'+d.class); //ID for future use with clicks
       });
 
 /*/ Just work on moral line for now
@@ -247,8 +290,8 @@ console.log(data);
 */
   </script>
 
-</div>
-</div>
+<!--</div>-->
+<!--</div>-->
 
 </body>
 </html>
