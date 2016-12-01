@@ -67,17 +67,18 @@ var oneClass = {
 }
 
   for (var i = 0; i < numFiles; i++) { //for every month
-    var wordArray = new Array(124);
+    wordArray = new Array(124);
     var curFile = monthlyFiles[i];
     var nMoral = 0.0;
     var nGeneral = 0.0;
     var nHashtag = 0.0;
+    var oneMonth = new Object();
     d3.text(curFile, function(text) {
       var curDataset = d3.csv.parseRows(text);
       var curLength = curDataset.length;
       // for every word
       for (var j = 1; j < 125; j++) {
-        wordArray[j-1] = 0;
+        window.wordArray[j-1] = 0;
         // for every user
         var curWordSum = 0.0;
         for (var k = 0; k < curLength; k++) {
@@ -85,33 +86,35 @@ var oneClass = {
         var curType;
         if (moralWords.indexOf(allWords[j-1]) > -1) {
           curType = "moral";
-          nMoral += parseInt(curDataset[k][j], 10);
+          window.nMoral += parseInt(curDataset[k][j], 10);
         } else if (generalWords.indexOf(allWords[j-1]) > -1) {
           curType = "general";
-          nGeneral += parseInt(curDataset[k][j], 10);
+          window.nGeneral += parseInt(curDataset[k][j], 10);
         } else {
           curType = "hashtag";
-          nHashtag += parseInt(curDataset[k][j], 10);
+          window.nHashtag += parseInt(curDataset[k][j], 10);
         }}
+        window.oneMonth.totalMoral = window.nMoral;
+        window.oneMonth.totalGeneral = window.nGeneral;
+        window.oneMonth.totalHashtag = window.nHashtag;
+
         var wordOfInterest = {
           word: allWords[j-1],
           type: curType,
           frequency: curWordSum
         };
-        wordArray[j-1] = wordOfInterest;
+        window.wordArray[j-1] = wordOfInterest;
       }
-      var oneMonth = {
-        month: monthNames[i],
-        words: wordArray,
-        totalMoral: nMoral,
-        totalGeneral: nGeneral,
-        totalHashtag: nHashtag
-      };
-      monthArray[i] = oneMonth;
+      window.oneMonth.words = window.wordArray;
+        window.oneMonth.month = monthNames[i];
+        window.oneMonth.words = window.wordArray;
+window.monthArray[i] = window.oneMonth;
+
     });
+      console.log(window.monthArray);
 
   }
-  console.log(monthArray);
+
 
   d3.text(wordFile, function(text) {
     words = d3.csv.parseRows(text);
