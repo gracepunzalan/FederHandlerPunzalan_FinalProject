@@ -28,20 +28,20 @@ and http://bl.ocks.org/d3noob/d8be922a10cb0b148cd5 -->
 {
 "class": "1",
 "values": [{
-    "month": "08",
+    "month": "01",
     "year" : "2016",
-    "totM": "02",
-    "totG": "03"
+    "totM": "50",
+    "totG": "43"
   }, {
     "month": "02",
     "year" : "2016",
-    "totM": "5",
-    "totG": "2"
+    "totM": "51",
+    "totG": "27"
   }, {
     "month": "03",
     "year" : "2016",
-    "totM": "10",
-    "totG": "4"
+    "totM": "100",
+    "totG": "44"
   }]
 },
 {
@@ -49,13 +49,13 @@ and http://bl.ocks.org/d3noob/d8be922a10cb0b148cd5 -->
 "values": [{
     "month": "01",
     "year" : "2016",
-    "totM": "12",
-    "totG": "18"
+    "totM": "122",
+    "totG": "80"
   }, {
     "month": "02",
     "year" : "2016",
-    "totM": "6",
-    "totG": "11"
+    "totM": "67",
+    "totG": "110"
   }, {
     "month": "03",
     "year" : "2016",
@@ -68,12 +68,12 @@ and http://bl.ocks.org/d3noob/d8be922a10cb0b148cd5 -->
 "values": [{
     "month": "01",
     "year" : "2016",
-    "totM": "27",
-    "totG": "22"
+    "totM": "74",
+    "totG": "39"
   }, {
     "month": "02",
     "year" : "2016",
-    "totM": "30",
+    "totM": "38",
     "totG": "33"
   }, {
     "month": "03",
@@ -127,9 +127,9 @@ console.log(data);
        WIDTH = 1000,
       HEIGHT = 500,
       MARGINS = {
-        top: 20,
+        top: 50,
         right: 20,
-        bottom: 20,
+        bottom: 50,
         left: 50,
       },
       // NEED TO INCLUDE THE ARRAYS FROM THE DATA PARSING TO USE THIS!
@@ -144,7 +144,7 @@ console.log(data);
       minDate = new Date(2015, 08-1), // new Date function counts Jan as 01 and Dec as 11
       maxDate = new Date(2016, 10-1),
       xScale = d3.time.scale().range([MARGINS.left, WIDTH - MARGINS.right]).domain([minDate, maxDate]), //Left the domain unset b/c its fn of time
-      yScale = d3.scale.linear().range([HEIGHT- 4*MARGINS.bottom, MARGINS.top]).domain([0, 124]), //Not Dynamic :: use maxWordCount instead
+      yScale = d3.scale.linear().range([HEIGHT- 2*MARGINS.bottom, MARGINS.top]).domain([0, 124]), //Not Dynamic :: use maxWordCount instead
 
       xAxis = d3.svg.axis()
         .scale(xScale)
@@ -157,7 +157,7 @@ console.log(data);
 
       // Append the X and Y axes to the svg
       vis.append("svg:g")
-        .attr("transform", "translate(0," + (HEIGHT - 4*MARGINS.bottom) + ")")
+        .attr("transform", "translate(0," + (HEIGHT - 2*MARGINS.bottom) + ")")
         .call(xAxis)
         .selectAll("text")
           .style("text-anchor", "end")
@@ -184,31 +184,58 @@ console.log(data);
           return xScale(date);
         })
         .y(function(d){
-          return yScale(d.totalM);
+          console.log(d.totM);
+          console.log("y-val scaled:")
+          console.log(yScale(d.totM));
+          return yScale(d.totM);
         })
         .interpolate("basis");
 
-/* Just work on moral line for now
         // takes an array of objects called values: [{"month": "01", "totM": "", "totG": ""}, {"month": "02"...}, etc.]
         var generalLineGen = d3.svg.line() // need to change the x & y-vals for each Month
           .x(function(d){
-            return xScale(new Date(d.year, d.month));
+            return xScale(new Date(d.year, d.month-1)); // new Date function counts Jan as 01 and Dec as 11
           })
           .y(function(d){
-            return yScale(d.totalG);
+            return yScale(d.totG);
           })
           .interpolate("basis");
-*/
+
+      // Add Color code: (reference: http://bl.ocks.org/aaizemberg/78bd3dade9593896a59d)
+      var c10 = d3.scale.category10();
 
       // If data is set up with [{"key": "class#1", "values": [{"month": "01", "totM": "", "totG": ""}, {"month": "02"...}, etc.]}, {"key": "class#2", "values": [{"month": "01", "totM": "", "totG": ""}, {"month": "02"...}, etc.]}
+      // For each CLASS...
       data.forEach(function(d,i){
+
+        // Create the moral line
         vis.append('svg:path')
           .attr('d', moralLineGen(d.values))
-          .attr('stroke', 'green')
+          .attr('stroke', c10(d.class))
           .attr('stroke-width', 2)
-          .attr('fill', 'none');
+          .attr('fill', 'none')
+          // .attr("data-legend", function(d){
+          //   return d.class;})
+            ;
+
+        // Create the legend for the moral line
+
+        // vis.append("g")
+        //   .attr("class", "legend")
+        //   .attr("transform", "translate(" + WIDTH - MARGINS.right + "," + MARGINS.top")")
+        //   .attr("font-size", "12px")
+        //   .call(d3.legend);
+
+        // Create the general line
+        vis.append('svg:path')
+            .attr('d', generalLineGen(d.values))
+            .attr('stroke', c10(d.class))
+            .style("stroke-dasharray", ("3, 3")) // from: http://www.d3noob.org/2013/01/making-dashed-line-in-d3js.html
+            .attr('stroke-width', 2)
+            .attr('fill', 'none');
       });
-/* Just work on moral line for now
+
+/*/ Just work on moral line for now
       // If data is set up with [{"key": "class#1", "values": [{"month": "01", "totM": "", "totG": ""}, {"month": "02"...}, etc.]}, {"key": "class#2", "values": [{"month": "01", "totM": "", "totG": ""}, {"month": "02"...}, etc.]}
       data.forEach(function(d,i){
         vis.append('svg:path')
