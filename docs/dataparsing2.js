@@ -54,22 +54,16 @@ function dataparsing() {
             "2016-02-01-tweets.csv", "2016-03-01-tweets.csv",
             "2016-04-01-tweets.csv", "2016-05-01-tweets.csv",
             "2016-06-01-tweets.csv", "2016-07-01-tweets.csv",
-            "2016-08-01-tweets.csv", "2016-09-01-tweets.csv",
+            "2016-08-01-twee
+            ts.csv", "2016-09-01-tweets.csv",
             "2016-10-01-tweets.csv"
         ];
-        //var numFiles = monthlyFiles.length;
-        //var monthArray = new Array(15);
-        //var wordword = [];
-        //var oneMonth;
         var monthNames = ["August2015", "September2015", "October2015", "November2015",
             "December2015", "January2016", "February2016", "March2016",
             "April2016", "May2016", "June2016", "July2016", "August2016",
             "September2016", "October2016", "AllMonths"
         ];
         var numMonths = monthNames.length;
-        //var nMoral = 0.0;
-        //var nGeneral = 0.0;
-        //var nHashtag = 0.0;
 
         for (var i = 0; i < 15; i++) { //for every month
 

@@ -1,11 +1,11 @@
-function readWordCSV() {
+function readWordCSV(classes) {
     d3.text("words.csv", function(text) {
         words = d3.csv.parseRows(text);
-        parseWords(words);
+        parseWords(words, classes);
     });
 }
 
-function parseWords(words) {
+function parseWords(words, classes) {
     var numWords = words[0].length;
     var moralWords = [];
     var hashtagWords = [];
@@ -32,25 +32,70 @@ function parseWords(words) {
         }
         allWords.push(curWord);
     }
-    parseFingerprint(moralWords, hashtagWords, generalWords, allWords);
+    parseFingerprint(moralWords, hashtagWords, generalWords, allWords, classes);
 }
 
-function readFingerPrintCSV(curFile, moralWords, hashtagWords, generalWords, allWords, monthName, i) {
+function readFingerPrintCSV(curFile, moralWords, hashtagWords, generalWords, allWords, monthName, i, classes, c) {
     d3.text(curFile, function(text) {
         fingerpint = d3.csv.parseRows(text);
-        var curMonthObject = createMonth(fingerpint, moralWords, hashtagWords, generalWords, allWords, monthName, i);
-        temp(curMonthObject, i, monthName);
+        var curMonthObject = createMonth(fingerpint, moralWords, hashtagWords, generalWords, allWords, monthName, i, classes, c);
+        temp(curMonthObject, i, monthName, c);
     });
-}
-var monthArray = {};
-function temp(curMonthObject, i, monthName) {
-  monthArray[i] = curMonthObject;
-  monthArray[i].month = monthName;
-  var myJsonString = JSON.stringify(monthArray);
-  console.log(myJsonString);
+    test();
 }
 
-function parseFingerprint(moralWords, hashtagWords, generalWords, allWords) {
+function readClassCSV() {
+    d3.text("classes.csv", function(text) {
+        classes = d3.csv.parseRows(text);
+        classParsing(classes);
+    });
+}
+
+function classParsing(classes) {
+    var numClasses = 5;
+    var length = classes.length;
+    var userClasses = [];
+
+    for (var i = 0; i < numClasses; i++) {
+        var curClass = {
+            classNum: i + 1,
+            users: []
+        }
+        for (var k = 0; k < length; k++) {
+            if (classes[k][1] == i) {
+                curClass.users.push(classes[k][0]);
+            }
+        }
+    }
+    readWordCSV(classes);
+}
+
+var monthArray = {};
+
+function temp(curMonthObject, i, monthName, c) {
+    monthArray[i] = curMonthObject;
+    monthArray[i].month = monthName;
+    //classArray[c] = monthArray[i];
+
+    if (i === 14) {
+      test(monthArray, c);
+    }
+    //console.log(monthArray);
+    // ALL MONTHS
+}
+
+var classArray = {};
+function test(monthArray, c) {
+  var oneClass = {
+    classNum : (c+1),
+    monthArray : monthArray
+  };
+  classArray[c] = oneClass;
+  var json = JSON.stringify(classArray);
+  console.log(json);
+}
+
+function parseFingerprint(moralWords, hashtagWords, generalWords, allWords, classes) {
     var monthlyFiles = ["2015-08-01-tweets.csv", "2015-09-01-tweets.csv",
         "2015-10-01-tweets.csv", "2015-11-01-tweets.csv",
         "2015-12-01-tweets.csv", "2016-01-01-tweets.csv",
@@ -66,16 +111,17 @@ function parseFingerprint(moralWords, hashtagWords, generalWords, allWords) {
         "September2016", "October2016", "AllMonths"
     ];
     var numMonths = monthNames.length;
+    var numClasses = 4; //for all classes
 
-    for (var i = 0; i <= numMonths; i++) {
-        var curFile = monthlyFiles[i];
-        var curMonthObject = readFingerPrintCSV(curFile, moralWords, hashtagWords, generalWords, allWords, monthNames[i], i);
+    for (var c = 0; c < numClasses; c++) {
+        for (var i = 0; i <= numMonths; i++) {
+            var curFile = monthlyFiles[i];
+            var curMonthObject = readFingerPrintCSV(curFile, moralWords, hashtagWords, generalWords, allWords, monthNames[i], i, classes, c); //all months
+        }
     }
-
-
 }
 
-function createMonth(fingerprint, moralWords, hashtagWords, generalWords, allWords, monthName, i) {
+function createMonth(fingerprint, moralWords, hashtagWords, generalWords, allWords, monthName, i, classes, c) {
     var oneMonth = {};
     var monthArray = [];
     var wordOfInterest = {};
@@ -89,47 +135,45 @@ function createMonth(fingerprint, moralWords, hashtagWords, generalWords, allWor
     var moral = moralWords;
     var general = generalWords;
     var hashtag = hashtagWords;
+
     for (var j = 1; j < fingerprintLength; j++) { // number of users
-        //var curWordSum = 0.0;
-        var numWords =  124;
-        for (var k = 1; k < numWords + 1; k++) { // number of workds
-            var curWordSum = parseInt(curDataset[k][j], 10);
-            var curType;
-            if (moral.indexOf(all[k]) > -1) {
-                curType = "moral";
-                nMoral += parseInt(curDataset[k][j], 10);
-            } else if (general.indexOf(all[k]) > -1) {
-                curType = "general";
-                nGeneral += parseInt(curDataset[k][j], 10);
-            } else {
-                curType = "hashtag";
-                nHashtag += parseInt(curDataset[k][j], 10);
+        var numWords = 124;
+        for (var x = 0; x < classes.length; x++) {
+            if (classes[x][0] === curDataset[j][0]) {
+                for (var k = 1; k < numWords + 1; k++) { // number of workds
+                    var curWordSum = parseInt(curDataset[k][j], 10);
+                    var curType;
+                    if (moral.indexOf(all[k]) > -1) {
+                        curType = "moral";
+                        nMoral += parseInt(curDataset[k][j], 10);
+                    } else if (general.indexOf(all[k]) > -1) {
+                        curType = "general";
+                        nGeneral += parseInt(curDataset[k][j], 10);
+                    } else {
+                        curType = "hashtag";
+                        nHashtag += parseInt(curDataset[k][j], 10);
+                    }
+                    var wordOfInterest = {
+                        word: all[k],
+                        type: curType,
+                        frequency: curWordSum
+                    };
+                    wordArray.push(wordOfInterest);
+                }
+
+                oneMonth.totalMoral = nMoral;
+                oneMonth.totalHashtag = nHashtag;
+                oneMonth.totalGeneral = nGeneral;
+                oneMonth.month = monthName;
+                oneMonth.words = wordArray;
+                return oneMonth;
             }
-            var wordOfInterest = {
-                word: all[k],
-                type: curType,
-                frequency: curWordSum
-            };
-            wordArray.push(wordOfInterest);
         }
-
-        oneMonth.totalMoral = nMoral;
-        oneMonth.totalHashtag = nHashtag;
-        oneMonth.totalGeneral = nGeneral;
-        oneMonth.month = monthName;
-        oneMonth.words = wordArray;
-        return oneMonth;
-    }
-    if (i >= 14) {
-      console.log("TIME FOR THE NEXT THING");
-
     }
 }
 
-
-
 function main() {
-    readWordCSV();
+    readClassCSV();
 }
 
 main();
